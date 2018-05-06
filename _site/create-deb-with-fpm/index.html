@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>create deb package with fpm – the world of vinian – just another blogger</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="find usr/
+usr/
+usr/local
+usr/local/blackbox
+usr/local/blackbox/bin
+usr/local/blackbox/bin/blackbox_exporter
+usr/local/blackbox/etc
+usr/local/blackbox/etc/blackbox.yml
+
+
+" />
+    <meta property="og:description" content="find usr/
+usr/
+usr/local
+usr/local/blackbox
+usr/local/blackbox/bin
+usr/local/blackbox/bin/blackbox_exporter
+usr/local/blackbox/etc
+usr/local/blackbox/etc/blackbox.yml
+
+
+" />
+    
+    <meta name="author" content="the world of vinian" />
+
+    
+    <meta property="og:title" content="create deb package with fpm" />
+    <meta property="twitter:title" content="create deb package with fpm" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="the world of vinian - just another blogger" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://raw.githubusercontent.com/barryclark/jekyll-now/master/images/jekyll-logo.png" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">the world of vinian</a></h1>
+            <p class="site-description">just another blogger</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>create deb package with fpm</h1>
+
+  <div class="entry">
+    <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>find usr/
+usr/
+usr/local
+usr/local/blackbox
+usr/local/blackbox/bin
+usr/local/blackbox/bin/blackbox_exporter
+usr/local/blackbox/etc
+usr/local/blackbox/etc/blackbox.yml
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">cat debian/preinst</code></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+<span class="nb">set</span> <span class="nt">-e</span>
+
+<span class="nv">USER</span><span class="o">=</span>blackbox_exporter
+<span class="nv">GROUP</span><span class="o">=</span><span class="nv">$USER</span>
+
+<span class="k">case</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> <span class="k">in
+    </span>install<span class="p">)</span>
+        <span class="c"># do some magic</span>
+        <span class="k">if</span> <span class="o">!</span> getent group <span class="nv">$GROUP</span> <span class="o">&gt;</span>/dev/null<span class="p">;</span> <span class="k">then</span>
+            /usr/sbin/useradd <span class="nt">-s</span> /usr/sbin/nologin <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
+        <span class="k">fi</span>
+        <span class="p">;;</span>
+
+    upgrade|abort-upgrade<span class="p">)</span>
+        <span class="p">;;</span>
+
+    <span class="k">*</span><span class="p">)</span>
+        <span class="k">if </span>getent group <span class="nv">$GROUP</span> <span class="o">&gt;</span>/dev/null<span class="p">;</span> <span class="k">then</span>
+            /usr/sbin/userdel <span class="nt">-r</span> <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
+        <span class="k">fi
+        </span><span class="nb">exit </span>0
+        <span class="p">;;</span>
+<span class="k">esac</span>
+
+<span class="c">#DEBHELPER#</span>
+
+<span class="nb">exit </span>0
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">cat debian/postrm</code></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+<span class="nb">set</span> <span class="nt">-e</span>
+
+<span class="nv">USER</span><span class="o">=</span>blackbox_exporter
+<span class="nv">GROUP</span><span class="o">=</span><span class="nv">$USER</span>
+
+<span class="k">case</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> <span class="k">in
+    </span>purge|remove<span class="p">)</span>
+        <span class="c"># do some magic</span>
+        <span class="k">if </span>getent group <span class="nv">$GROUP</span> <span class="o">&gt;</span>/dev/null<span class="p">;</span> <span class="k">then</span>
+            /usr/sbin/userdel <span class="nt">-r</span> <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
+        <span class="k">fi</span>
+        <span class="p">;;</span>
+    <span class="k">*</span><span class="p">)</span>
+        <span class="nb">echo</span> <span class="s2">"postrm called with unknown argument </span><span class="se">\'</span><span class="nv">$1</span><span class="s2">'"</span> <span class="o">&gt;</span>&amp;2
+        <span class="nb">exit </span>0
+        <span class="p">;;</span>
+<span class="k">esac</span>
+
+<span class="c">#DEBHELPER#</span>
+
+<span class="nb">exit </span>0
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nb">set</span> <span class="nt">-x</span>
+
+fpm <span class="nt">-s</span> dir <span class="se">\</span>
+    <span class="nt">-t</span> deb <span class="se">\</span>
+    <span class="nt">-n</span> <span class="s2">"blackbox_exporter"</span> <span class="se">\</span>
+    <span class="nt">-v</span> 0.12.0 <span class="se">\</span>
+    <span class="nt">--description</span> <span class="s2">"prometheus blackbox exporter"</span> <span class="se">\</span>
+    <span class="nt">--url</span> <span class="s1">'https://github.com/prometheus/blackbox_exporter'</span> <span class="se">\</span>
+    <span class="nt">--maintainer</span> yourmail@mail.com <span class="se">\</span>
+    <span class="nt">--deb-no-default-config-files</span> <span class="se">\</span>
+    <span class="nt">--before-install</span> debian/preinst <span class="se">\</span>
+    <span class="nt">--after-remove</span> debian/postrm <span class="se">\</span>
+    <span class="nt">--deb-systemd</span> blackbox_exporter.service <span class="se">\</span>
+    <span class="nt">--deb-use-file-permissions</span> ./usr
+</code></pre></div></div>
+
+
+  </div>
+
+  <div class="date">
+    Written on May  6, 2018
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/barryclark/jekyll-now"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/jekyllrb"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
