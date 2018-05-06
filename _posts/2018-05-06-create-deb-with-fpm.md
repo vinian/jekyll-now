@@ -83,13 +83,14 @@ fpm -s dir \
     -v 0.12.0 \
     --description "prometheus blackbox exporter" \
     --url 'https://github.com/prometheus/blackbox_exporter' \
-    --maintainer scloud-yjsop@baidu.com \
+    --maintainer yourmail@mail.com \
     --deb-no-default-config-files \
     --before-install debian/preinst \
     --after-remove debian/postrm \
     --deb-systemd blackbox_exporter.service \
     --deb-use-file-permissions ./usr
 ```
+
 
 
 
