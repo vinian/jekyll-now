@@ -1,0 +1,25 @@
+---
+layout: post
+title: use openssl self sign keys
+category: ssl
+---
+
+## 名词解析
+CA: Certificate Authority
+CSR: Certificate Signing Request
+DN: Distinguised Name
+CN: Common Name
+FQDN: Fully Qualified Domain Name
+
+## 步骤
+
+1. 生成 ca
+2. 生成 key
+3. 生成 csr
+4. 对生成的 csr 采用 ca 签名
+
+
+## 参考文档
+(working with ssl cerficates, private keys and csrs)[https://www.dynacont.net/documentation/linux/openssl/]
+(securing docker with TLS cerficates)[http://tech.paulcz.net/2016/01/secure-docker-with-tls/]
+
