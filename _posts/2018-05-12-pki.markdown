@@ -1,8 +1,10 @@
 ---
 layout: post
-title: use openssl self sign keys
+title: Pub Key Infrastructure
 category: ssl
 ---
+
+## TODO 完成自己的 PKI 的理解，并用 openssl 及 cfssl 或者其他工具生成一套可以用的证书
 
 ## 名词解析
 CA: Certificate Authority

@@ -1,4 +1,101 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.7.3">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-05-06T23:07:43+08:00</updated><id>http://localhost:4000/</id><title type="html">the world of vinian</title><subtitle>just another blogger</subtitle><entry><title type="html">create deb package with fpm</title><link href="http://localhost:4000/create-deb-with-fpm/" rel="alternate" type="text/html" title="create deb package with fpm" /><published>2018-05-06T00:00:00+08:00</published><updated>2018-05-06T00:00:00+08:00</updated><id>http://localhost:4000/create-deb-with-fpm</id><content type="html" xml:base="http://localhost:4000/create-deb-with-fpm/">&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;find usr/
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2018-05-27T15:12:10+08:00</updated><id>http://localhost:4000/</id><title type="html">the world of vinian</title><subtitle>just another blogger</subtitle><entry><title type="html">saltstack sls 里的变量操控</title><link href="http://localhost:4000/variable-in-saltstack/" rel="alternate" type="text/html" title="saltstack sls 里的变量操控" /><published>2018-05-27T00:00:00+08:00</published><updated>2018-05-27T00:00:00+08:00</updated><id>http://localhost:4000/variable-in-saltstack</id><content type="html" xml:base="http://localhost:4000/variable-in-saltstack/">&lt;p&gt;在编写 saltstack 的 sls 文件时，我们少不了和变量打交道，本文介绍变量的存贮，生成及变换。&lt;/p&gt;
+
+&lt;h1 id=&quot;变量存在什么地方&quot;&gt;变量存在什么地方&lt;/h1&gt;
+
+&lt;h2 id=&quot;pillar&quot;&gt;pillar&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;pillar&lt;/code&gt; 数据在 master 上编译，主要存贮敏感的信息，比如帐号和密码配置，或者公用的信息
+存贮在 &lt;code class=&quot;highlighter-rouge&quot;&gt;pillar&lt;/code&gt; 里的变量是全局变量，所有 minions 都可以获取到 &lt;code class=&quot;highlighter-rouge&quot;&gt;pillar&lt;/code&gt; 里的信息&lt;/p&gt;
+
+&lt;h2 id=&quot;grains&quot;&gt;grains&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;grain&lt;/code&gt; 信息从 minion 上收集，相当于局部变量，每个 minion 的 grain 信息只能自己读取&lt;/p&gt;
+
+&lt;h2 id=&quot;mine&quot;&gt;mine&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;mine&lt;/code&gt; 从 minion 上采集任何的信息，然后存贮在 master 上，进而 minion 通过 &lt;code class=&quot;highlighter-rouge&quot;&gt;salt.module.mine&lt;/code&gt;
+可以读取到 &lt;code class=&quot;highlighter-rouge&quot;&gt;mine&lt;/code&gt; 上的所有信息, &lt;code class=&quot;highlighter-rouge&quot;&gt;mine&lt;/code&gt; 里适合存贮在某ge minion 上生成的信息，需要分发到其他
+的 minion 上，比如 docker swarm 里 token&lt;/p&gt;
+
+&lt;h2 id=&quot;execute-module&quot;&gt;execute module&lt;/h2&gt;
+
+&lt;p&gt;还有一些变量需要实时的获取，可以通过使用 exexute module 来获取&lt;/p&gt;
+
+&lt;h1 id=&quot;如何读取变量&quot;&gt;如何读取变量&lt;/h1&gt;
+
+&lt;h2 id=&quot;pillar-1&quot;&gt;pillar&lt;/h2&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;pillar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'key1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'key2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;或者&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;salt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'pillar.get'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;](&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'key1:key2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'failover'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;两者的主要区别是，当查找变量不存在的时候，后者可以返回一个默认值&lt;/p&gt;
+
+&lt;p&gt;如果想要查看所有的 pillar 信息，在命令行上使用 &lt;code class=&quot;highlighter-rouge&quot;&gt;salt-call pillar.items&lt;/code&gt; 即可&lt;/p&gt;
+
+&lt;h2 id=&quot;grains-1&quot;&gt;grains&lt;/h2&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;grain&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'key'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;mine-1&quot;&gt;mine&lt;/h2&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;salt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'mine.get'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;](&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'key1:key2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;execute-module-1&quot;&gt;execute module&lt;/h2&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;salt&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'module.function'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;](&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'arg_1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'arg_2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;变量的变换&quot;&gt;变量的变换&lt;/h1&gt;
+
+&lt;h2 id=&quot;生成新变量&quot;&gt;生成新变量&lt;/h2&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;str_var&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;hello&quot;&lt;/span&gt; 
+&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;int_var&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; 
+&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dict_var&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt; 
+&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;array_var&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;变量变换&quot;&gt;变量变换&lt;/h2&gt;
+
+&lt;p&gt;jinja 里自带了几十个 filter, 可以完成对变量的部分操作，具体的请查询 &lt;a href=&quot;http://jinja.pocoo.org/docs/2.10/templates/#id11&quot;&gt;jinja&lt;/a&gt; 文档&lt;/p&gt;
+
+&lt;p&gt;str 大小写转换&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Hello World&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lower&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;dict 更新&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dict_var&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;key&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;value&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;新增 item 到 array&lt;/p&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;array_var&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="saltstack, python, jinja" /><summary type="html">在编写 saltstack 的 sls 文件时，我们少不了和变量打交道，本文介绍变量的存贮，生成及变换。</summary></entry><entry><title type="html">Pub Key Infrastructure</title><link href="http://localhost:4000/pki/" rel="alternate" type="text/html" title="Pub Key Infrastructure" /><published>2018-05-12T00:00:00+08:00</published><updated>2018-05-12T00:00:00+08:00</updated><id>http://localhost:4000/pki</id><content type="html" xml:base="http://localhost:4000/pki/">&lt;h2 id=&quot;todo-完成自己的-pki-的理解并用-openssl-及-cfssl-或者其他工具生成一套可以用的证书&quot;&gt;TODO 完成自己的 PKI 的理解，并用 openssl 及 cfssl 或者其他工具生成一套可以用的证书&lt;/h2&gt;
+
+&lt;h2 id=&quot;名词解析&quot;&gt;名词解析&lt;/h2&gt;
+&lt;p&gt;CA: Certificate Authority
+CSR: Certificate Signing Request
+DN: Distinguised Name
+CN: Common Name
+FQDN: Fully Qualified Domain Name&lt;/p&gt;
+
+&lt;h2 id=&quot;步骤&quot;&gt;步骤&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;生成 ca&lt;/li&gt;
+  &lt;li&gt;生成 key&lt;/li&gt;
+  &lt;li&gt;生成 csr&lt;/li&gt;
+  &lt;li&gt;对生成的 csr 采用 ca 签名&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;参考文档&quot;&gt;参考文档&lt;/h2&gt;
+&lt;p&gt;(working with ssl cerficates, private keys and csrs)[https://www.dynacont.net/documentation/linux/openssl/]
+(securing docker with TLS cerficates)[http://tech.paulcz.net/2016/01/secure-docker-with-tls/]&lt;/p&gt;</content><author><name></name></author><category term="ssl" /><summary type="html">TODO 完成自己的 PKI 的理解，并用 openssl 及 cfssl 或者其他工具生成一套可以用的证书</summary></entry><entry><title type="html">create deb package with fpm</title><link href="http://localhost:4000/create-deb-with-fpm/" rel="alternate" type="text/html" title="create deb package with fpm" /><published>2018-05-06T00:00:00+08:00</published><updated>2018-05-06T00:00:00+08:00</updated><id>http://localhost:4000/create-deb-with-fpm</id><content type="html" xml:base="http://localhost:4000/create-deb-with-fpm/">&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;find usr/
 usr/
 usr/local
 usr/local/blackbox
@@ -16,7 +113,7 @@ usr/local/blackbox/etc/blackbox.yml
 &lt;span class=&quot;nv&quot;&gt;GROUP&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$USER&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;in
-    &lt;/span&gt;install&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
         &lt;span class=&quot;c&quot;&gt;# do some magic&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;!&lt;/span&gt; getent group &lt;span class=&quot;nv&quot;&gt;$GROUP&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;/dev/null&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;then&lt;/span&gt;
             /usr/sbin/useradd &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; /usr/sbin/nologin &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;USER&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
@@ -68,7 +165,7 @@ usr/local/blackbox/etc/blackbox.yml
 
 &lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt;
 
-fpm &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; dir &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
+fpm &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;dir&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;-t&lt;/span&gt; deb &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;-n&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;blackbox_exporter&quot;&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
     &lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt; 0.12.0 &lt;span class=&quot;se&quot;&gt;\&lt;/span&gt;
