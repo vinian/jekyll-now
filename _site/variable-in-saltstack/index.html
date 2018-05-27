@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>saltstack sls 里的变量操控 – the world of vinian – just another blogger</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="在编写 saltstack 的 sls 文件时，我们少不了和变量打交道，本文介绍变量的存贮，生成及变换。
+
+" />
+    <meta property="og:description" content="在编写 saltstack 的 sls 文件时，我们少不了和变量打交道，本文介绍变量的存贮，生成及变换。
+
+" />
+    
+    <meta name="author" content="the world of vinian" />
+
+    
+    <meta property="og:title" content="saltstack sls 里的变量操控" />
+    <meta property="twitter:title" content="saltstack sls 里的变量操控" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="the world of vinian - just another blogger" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://raw.githubusercontent.com/barryclark/jekyll-now/master/images/jekyll-logo.png" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">the world of vinian</a></h1>
+            <p class="site-description">just another blogger</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>saltstack sls 里的变量操控</h1>
+
+  <div class="entry">
+    <p>在编写 saltstack 的 sls 文件时，我们少不了和变量打交道，本文介绍变量的存贮，生成及变换。</p>
+
+<h1 id="变量存在什么地方">变量存在什么地方</h1>
+
+<h2 id="pillar">pillar</h2>
+
+<p><code class="highlighter-rouge">pillar</code> 数据在 master 上编译，主要存贮敏感的信息，比如帐号和密码配置，或者公用的信息
+存贮在 <code class="highlighter-rouge">pillar</code> 里的变量是全局变量，所有 minions 都可以获取到 <code class="highlighter-rouge">pillar</code> 里的信息</p>
+
+<h2 id="grains">grains</h2>
+
+<p><code class="highlighter-rouge">grain</code> 信息从 minion 上收集，相当于局部变量，每个 minion 的 grain 信息只能自己读取</p>
+
+<h2 id="mine">mine</h2>
+
+<p><code class="highlighter-rouge">mine</code> 从 minion 上采集任何的信息，然后存贮在 master 上，进而 minion 通过 <code class="highlighter-rouge">salt.module.mine</code>
+可以读取到 <code class="highlighter-rouge">mine</code> 上的所有信息, <code class="highlighter-rouge">mine</code> 里适合存贮在某ge minion 上生成的信息，需要分发到其他
+的 minion 上，比如 docker swarm 里 token</p>
+
+<h2 id="execute-module">execute module</h2>
+
+<p>还有一些变量需要实时的获取，可以通过使用 exexute module 来获取</p>
+
+<h1 id="如何读取变量">如何读取变量</h1>
+
+<h2 id="pillar-1">pillar</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pillar</span><span class="p">[</span><span class="s">'key1'</span><span class="p">][</span><span class="s">'key2'</span><span class="p">]</span>
+</code></pre></div></div>
+<p>或者</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">salt</span><span class="p">[</span><span class="s">'pillar.get'</span><span class="p">](</span><span class="s">'key1:key2'</span><span class="p">,</span> <span class="s">'failover'</span><span class="p">)</span>
+</code></pre></div></div>
+<p>两者的主要区别是，当查找变量不存在的时候，后者可以返回一个默认值</p>
+
+<p>如果想要查看所有的 pillar 信息，在命令行上使用 <code class="highlighter-rouge">salt-call pillar.items</code> 即可</p>
+
+<h2 id="grains-1">grains</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">grain</span><span class="p">[</span><span class="s">'key'</span><span class="p">]</span>
+</code></pre></div></div>
+
+<h2 id="mine-1">mine</h2>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">salt</span><span class="p">[</span><span class="s">'mine.get'</span><span class="p">](</span><span class="s">'key1:key2'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="execute-module-1">execute module</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">salt</span><span class="p">[</span><span class="s">'module.function'</span><span class="p">](</span><span class="s">'arg_1'</span><span class="p">,</span> <span class="s">'arg_2'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h1 id="变量的变换">变量的变换</h1>
+
+<h2 id="生成新变量">生成新变量</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set</span> <span class="n">str_var</span> <span class="o">=</span> <span class="s">"hello"</span> 
+<span class="nb">set</span> <span class="n">int_var</span> <span class="o">=</span> <span class="mi">5</span> 
+<span class="nb">set</span> <span class="n">dict_var</span> <span class="o">=</span> <span class="p">{}</span> 
+<span class="nb">set</span> <span class="n">array_var</span> <span class="o">=</span> <span class="p">[]</span> 
+</code></pre></div></div>
+
+<h2 id="变量变换">变量变换</h2>
+
+<p>jinja 里自带了几十个 filter, 可以完成对变量的部分操作，具体的请查询 <a href="http://jinja.pocoo.org/docs/2.10/templates/#id11">jinja</a> 文档</p>
+
+<p>str 大小写转换</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set</span> <span class="n">a</span> <span class="o">=</span> <span class="s">"Hello World"</span><span class="o">|</span><span class="n">lower</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> 
+</code></pre></div></div>
+
+<p>dict 更新</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">do</span> <span class="n">dict_var</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s">"key"</span><span class="p">:</span> <span class="s">"value"</span><span class="p">})</span>
+</code></pre></div></div>
+
+<p>新增 item 到 array</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set</span> <span class="n">_</span> <span class="o">=</span> <span class="n">array_var</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</code></pre></div></div>
+
+
+  </div>
+
+  <div class="date">
+    Written on May 27, 2018
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/barryclark/jekyll-now"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/jekyllrb"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>
