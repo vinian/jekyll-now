@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>salt-syndic Unable to forward pub data – the world of vinian – just another blogger</title>
+
+        <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="sometimes, when you fire a cmd to minion behind salt-syndic, but there is not ouput, when checking the output of salt-syndic and salt-master, found
+sudo journalctl -u salt-syndic -f
+-- Logs begin at Thu 2017-10-12 14:46:16 CST. --
+Jun 07 18:32:47 syndic-master salt-syndic[11342]: [WARNING ] Unable to forward pub data: Authentication error occurred.
+Jun 07 18:32:52 syndic-master salt-syndic[11342]: [WARNING ] Unable to forward pub data: Authentication error occurred.
+Jun 07 18:33:32 syndic-master salt-syndic[11342]: [WARNING ] Unable to forward pub data: Authentication error occurred.
+
+
+" />
+    <meta property="og:description" content="sometimes, when you fire a cmd to minion behind salt-syndic, but there is not ouput, when checking the output of salt-syndic and salt-master, found
+sudo journalctl -u salt-syndic -f
+-- Logs begin at Thu 2017-10-12 14:46:16 CST. --
+Jun 07 18:32:47 syndic-master salt-syndic[11342]: [WARNING ] Unable to forward pub data: Authentication error occurred.
+Jun 07 18:32:52 syndic-master salt-syndic[11342]: [WARNING ] Unable to forward pub data: Authentication error occurred.
+Jun 07 18:33:32 syndic-master salt-syndic[11342]: [WARNING ] Unable to forward pub data: Authentication error occurred.
+
+
+" />
+    
+    <meta name="author" content="the world of vinian" />
+
+    
+    <meta property="og:title" content="salt-syndic Unable to forward pub data" />
+    <meta property="twitter:title" content="salt-syndic Unable to forward pub data" />
+    
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="alternate" type="application/rss+xml" title="the world of vinian - just another blogger" href="/feed.xml" />
+
+    <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+  </head>
+
+  <body>
+    <div class="wrapper-masthead">
+      <div class="container">
+        <header class="masthead clearfix">
+          <a href="/" class="site-avatar"><img src="https://raw.githubusercontent.com/barryclark/jekyll-now/master/images/jekyll-logo.png" /></a>
+
+          <div class="site-info">
+            <h1 class="site-name"><a href="/">the world of vinian</a></h1>
+            <p class="site-description">just another blogger</p>
+          </div>
+
+          <nav>
+            <a href="/">Blog</a>
+            <a href="/about">About</a>
+          </nav>
+        </header>
+      </div>
+    </div>
+
+    <div id="main" role="main" class="container">
+      <article class="post">
+  <h1>salt-syndic Unable to forward pub data</h1>
+
+  <div class="entry">
+    <p>sometimes, when you fire a cmd to minion behind salt-syndic, but there is not ouput, when checking the output of salt-syndic and salt-master, found</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>journalctl <span class="nt">-u</span> salt-syndic <span class="nt">-f</span>
+<span class="nt">--</span> Logs begin at Thu 2017-10-12 14:46:16 CST. <span class="nt">--</span>
+Jun 07 18:32:47 syndic-master salt-syndic[11342]: <span class="o">[</span>WARNING <span class="o">]</span> Unable to forward pub data: Authentication error occurred.
+Jun 07 18:32:52 syndic-master salt-syndic[11342]: <span class="o">[</span>WARNING <span class="o">]</span> Unable to forward pub data: Authentication error occurred.
+Jun 07 18:33:32 syndic-master salt-syndic[11342]: <span class="o">[</span>WARNING <span class="o">]</span> Unable to forward pub data: Authentication error occurred.
+</code></pre></div></div>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>journalctl <span class="nt">-u</span> salt-master <span class="nt">-f</span>
+<span class="nt">--</span> Logs begin at Thu 2017-10-12 14:46:16 CST. <span class="nt">--</span>
+Jun 07 18:33:32 syndic-master salt-master[2001]: <span class="o">[</span>WARNING <span class="o">]</span> Authentication failure of <span class="nb">type</span> <span class="s2">"user"</span> occurred.
+Jun 07 18:33:32 syndic-master salt-master[2001]: <span class="o">[</span>WARNING <span class="o">]</span> Authentication failure of <span class="nb">type</span> <span class="s2">"user"</span> occurred.
+Jun 07 18:33:37 syndic-master salt-master[2001]: <span class="o">[</span>WARNING <span class="o">]</span> Authentication failure of <span class="nb">type</span> <span class="s2">"user"</span> occurred.
+Jun 07 18:33:37 syndic-master salt-master[2001]: <span class="o">[</span>WARNING <span class="o">]</span> Authentication failure of <span class="nb">type</span> <span class="s2">"user"</span> occurred.
+</code></pre></div></div>
+
+<p>and you can simpley restart salt-syndic( <code class="highlighter-rouge">systemctl restart salt-syndic</code> ) temporary fix the problem, but after several time, the problem raise again</p>
+
+<p>when double checking the source code, found salt-master need to check auth user</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>➜  salt git:<span class="o">(</span>develop<span class="o">)</span> <span class="nb">grep</span> <span class="nt">-r</span> <span class="s1">'Authentication error'</span> <span class="k">*</span> <span class="nt">-n</span>
+daemons/masterapi.py:1049:            <span class="c"># Authentication error occurred: do not continue.</span>
+daemons/masterapi.py:1097:            <span class="c"># Authentication error occurred: do not continue.</span>
+daemons/masterapi.py:1204:            <span class="c"># Authentication error occurred: do not continue.</span>
+daemons/masterapi.py:1207:                              <span class="s1">'message'</span>: <span class="s1">'Authentication error occurred.'</span><span class="o">}}</span>
+master.py:1880:            <span class="c"># Authentication error occurred: do not continue.</span>
+master.py:1935:            <span class="c"># Authentication error occurred: do not continue.</span>
+master.py:2055:            <span class="c"># Authentication error occurred: do not continue.</span>
+master.py:2058:                              <span class="s1">'message'</span>: <span class="s1">'Authentication error occurred.'</span><span class="o">}}</span>                   <span class="c">### this is the error prompt in salt-syndic</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># master.py</span>
+<span class="mi">2121</span>     <span class="k">def</span> <span class="nf">_prep_auth_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clear_load</span><span class="p">):</span>
+<span class="mi">2122</span>         <span class="n">sensitive_load_keys</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="mi">2123</span>         <span class="n">key</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="mi">2124</span>         <span class="k">if</span> <span class="s">'token'</span> <span class="ow">in</span> <span class="n">clear_load</span><span class="p">:</span>
+<span class="mi">2125</span>             <span class="n">auth_type</span> <span class="o">=</span> <span class="s">'token'</span>
+<span class="mi">2126</span>             <span class="n">err_name</span> <span class="o">=</span> <span class="s">'TokenAuthenticationError'</span>
+<span class="mi">2127</span>             <span class="n">sensitive_load_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s">'token'</span><span class="p">]</span>
+<span class="mi">2128</span>         <span class="k">elif</span> <span class="s">'eauth'</span> <span class="ow">in</span> <span class="n">clear_load</span><span class="p">:</span>
+<span class="mi">2129</span>             <span class="n">auth_type</span> <span class="o">=</span> <span class="s">'eauth'</span>
+<span class="mi">2130</span>             <span class="n">err_name</span> <span class="o">=</span> <span class="s">'EauthAuthenticationError'</span>
+<span class="mi">2131</span>             <span class="n">sensitive_load_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s">'username'</span><span class="p">,</span> <span class="s">'password'</span><span class="p">]</span>
+<span class="mi">2132</span>         <span class="k">else</span><span class="p">:</span>
+<span class="mi">2133</span>             <span class="n">auth_type</span> <span class="o">=</span> <span class="s">'user'</span>
+<span class="mi">2134</span>             <span class="n">err_name</span> <span class="o">=</span> <span class="s">'UserAuthenticationError'</span>
+<span class="mi">2135</span>             <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span>
+</code></pre></div></div>
+
+<p>and since we didn’t create salt-api running user on syndic, the user auth will fail, we can fix the Error by create salt-api running user on syndic</p>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">salt-api-user</span><span class="pi">:</span>
+  <span class="s">user.prenent</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">fullname</span><span class="pi">:</span> <span class="s">Salt API User</span>
+    <span class="pi">-</span> <span class="na">shell</span><span class="pi">:</span> <span class="s">/usr/sbin/nologin</span>
+    <span class="pi">-</span> <span class="na">createhome</span><span class="pi">:</span> <span class="s">False</span>
+</code></pre></div></div>
+
+<p>remaining task: find why restart will temporary fix the problem</p>
+
+
+  </div>
+
+  <div class="date">
+    Written on June  6, 2018
+  </div>
+
+  
+</article>
+
+    </div>
+
+    <div class="wrapper-footer">
+      <div class="container">
+        <footer class="footer">
+          
+
+
+
+<a href="https://github.com/barryclark/jekyll-now"><i class="svg-icon github"></i></a>
+
+
+
+
+<a href="https://www.twitter.com/jekyllrb"><i class="svg-icon twitter"></i></a>
+
+
+
+        </footer>
+      </div>
+    </div>
+
+    
+
+  </body>
+</html>

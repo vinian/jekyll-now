@@ -91,7 +91,7 @@ usr/local/blackbox/etc/blackbox.yml
 <span class="nv">GROUP</span><span class="o">=</span><span class="nv">$USER</span>
 
 <span class="k">case</span> <span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span> <span class="k">in
-    </span><span class="nb">install</span><span class="p">)</span>
+    </span>install<span class="p">)</span>
         <span class="c"># do some magic</span>
         <span class="k">if</span> <span class="o">!</span> getent group <span class="nv">$GROUP</span> <span class="o">&gt;</span>/dev/null<span class="p">;</span> <span class="k">then</span>
             /usr/sbin/useradd <span class="nt">-s</span> /usr/sbin/nologin <span class="k">${</span><span class="nv">USER</span><span class="k">}</span>
@@ -143,7 +143,7 @@ usr/local/blackbox/etc/blackbox.yml
 
 <span class="nb">set</span> <span class="nt">-x</span>
 
-fpm <span class="nt">-s</span> <span class="nb">dir</span> <span class="se">\</span>
+fpm <span class="nt">-s</span> dir <span class="se">\</span>
     <span class="nt">-t</span> deb <span class="se">\</span>
     <span class="nt">-n</span> <span class="s2">"blackbox_exporter"</span> <span class="se">\</span>
     <span class="nt">-v</span> 0.12.0 <span class="se">\</span>
